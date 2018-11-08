@@ -16,11 +16,6 @@ class ViewController: UIViewController, UITableViewDelegate {
     private let disposeBag = DisposeBag()
     private let provider = NetworkProvider()
     private var quotations: Variable<[QuotationViewModel]> = Variable([])
-    private lazy var timer: Timer = {
-        return Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak self] (_) in
-            self?.loadData()
-        }
-    }()
     
     override func loadView() {
         tableView = UITableView(frame: UIScreen.main.bounds)
@@ -33,7 +28,8 @@ class ViewController: UIViewController, UITableViewDelegate {
         super.viewDidLoad()
         
         setupCellConfiguration()
-        timer.fire()
+        setupTimer()
+        loadData()
     }
     
     private func setupCellConfiguration() {
@@ -46,6 +42,14 @@ class ViewController: UIViewController, UITableViewDelegate {
                     cell.update(with: quotation)
             }
             .disposed(by: disposeBag)
+    }
+    
+    private func setupTimer() {
+        Observable<Int>.interval(5.0, scheduler: SerialDispatchQueueScheduler(qos: .background))
+            .observeOn(MainScheduler.instance)
+            .subscribe(onNext: { [weak self] _ in
+                self?.loadData()
+            }).disposed(by: disposeBag)
     }
     
     private func loadData() {
