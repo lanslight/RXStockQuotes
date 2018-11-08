@@ -18,6 +18,7 @@ class ViewController: UIViewController, UITableViewDelegate {
     private var quotations: Variable<[QuotationViewModel]> = Variable([])
     
     override func loadView() {
+        title = "RxStockQuotes"
         tableView = UITableView(frame: UIScreen.main.bounds)
         tableView.register(QuotationCell.self, forCellReuseIdentifier: "cell")
         tableView.rx.setDelegate(self).disposed(by: disposeBag)
